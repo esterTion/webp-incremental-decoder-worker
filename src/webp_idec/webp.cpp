@@ -23,10 +23,14 @@ public:
         totalSize = size;
     }
     ~WebPIDec() {
-        WebPIDelete(idec);
-        WebPFreeDecBuffer(&decBuffer);
+        if (idec != NULL) {
+            WebPIDelete(idec);
+            WebPFreeDecBuffer(&decBuffer);
+        }
+        if (rgba != NULL) {
+            free(rgba);
+        }
         free(data);
-        free(rgba);
     }
 
     val append(std::string buffer) {
