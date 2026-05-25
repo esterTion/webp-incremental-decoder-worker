@@ -1,0 +1,4 @@
+[submodule "src/webp_idec/libwebp"]
+	path = src/webp_idec/libwebp
+	url = https://github.com/webmproject/libwebp.git
+	branch = main
