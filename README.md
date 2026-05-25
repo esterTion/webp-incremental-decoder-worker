@@ -49,3 +49,11 @@ worker.onmessage = e => {
 	const { canvas } = e.data; // OffscreenCanvas object containing decoded image so far, or null if too few data
 }
 ```
+
+### License
+[MIT License](LICENSE)
+
+### Credits
+
+[libwebp](https://github.com/webmproject/libwebp)  
+[emscripten](https://emscripten.org/)  
