@@ -42,21 +42,22 @@ public:
     val append(std::string buffer) {
         VP8StatusCode status;
 
-        uint32_t bufferSize = buffer.size();
-        uint32_t copySize = ((bufferSize) < (totalSize - currentSize)) ? (bufferSize) : (totalSize - currentSize);
+        size_t bufferSize = buffer.size();
+        size_t copySize = ((bufferSize) < (totalSize - currentSize)) ? (bufferSize) : (totalSize - currentSize);
         memcpy(data + currentSize, buffer.c_str(), copySize);
         currentSize += buffer.size();
         if (!rgba) {
             WebPGetInfo(data, currentSize, &width, &height);
             if (width == 0 || height == 0) return val::null();
-            rgba = (uint8_t*)malloc(width * height * 4);
-            memset(rgba, 0, width * height * 4);
+            size_t pixelBufferSize = width * height * 4;
+            rgba = (uint8_t*)malloc(pixelBufferSize);
+            memset(rgba, 0, pixelBufferSize);
             WebPInitDecBuffer(&decBuffer);
             decBuffer.width = width;
             decBuffer.height = height;
             decBuffer.colorspace = MODE_RGBA;
             decBuffer.u.RGBA.rgba = rgba;
-            decBuffer.u.RGBA.size = width * height * 4;
+            decBuffer.u.RGBA.size = pixelBufferSize;
             decBuffer.u.RGBA.stride = width * 4;
             decBuffer.is_external_memory = 1;
             idec = WebPINewDecoder(&decBuffer);
@@ -81,8 +82,8 @@ private:
     WebPIDecoder* idec;
     WebPDecBuffer decBuffer;
     uint8_t* data;
-    uint32_t totalSize;
-    uint32_t currentSize;
+    size_t totalSize;
+    size_t currentSize;
     uint8_t* rgba;
     int width;
     int height;
