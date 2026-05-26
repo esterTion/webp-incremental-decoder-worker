@@ -19,8 +19,14 @@ thread_local const val ImageData = val::global("ImageData");
 class WebPIDec {
 public:
     WebPIDec(uint32_t size) {
+        idec = NULL;
+        memset(&decBuffer, 0, sizeof(decBuffer));
         data = (uint8_t*)malloc(size);
         totalSize = size;
+        currentSize = 0;
+        rgba = NULL;
+        width = 0;
+        height = 0;
     }
     ~WebPIDec() {
         if (idec != NULL) {
@@ -36,12 +42,15 @@ public:
     val append(std::string buffer) {
         VP8StatusCode status;
 
-        memcpy(data + currentSize, buffer.c_str(), buffer.size());
+        uint32_t bufferSize = buffer.size();
+        uint32_t copySize = ((bufferSize) < (totalSize - currentSize)) ? (bufferSize) : (totalSize - currentSize);
+        memcpy(data + currentSize, buffer.c_str(), copySize);
         currentSize += buffer.size();
         if (!rgba) {
             WebPGetInfo(data, currentSize, &width, &height);
             if (width == 0 || height == 0) return val::null();
             rgba = (uint8_t*)malloc(width * height * 4);
+            memset(rgba, 0, width * height * 4);
             WebPInitDecBuffer(&decBuffer);
             decBuffer.width = width;
             decBuffer.height = height;

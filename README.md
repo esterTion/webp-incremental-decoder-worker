@@ -5,6 +5,7 @@ build wasm:
 # install emcc and setup env
 git submodule --init
 pushd src/webp_idec
+# msys2 on windows
 bash build.sh
 popd
 ```
@@ -33,6 +34,7 @@ ctx.putImageData(image, 0, 0);
 ```
 
 ```JavaScript
+worker = new Worker('webp-idec.js', { type: 'module' });
 // worker usage
 worker.postMessage({
 	id, // message id
@@ -46,7 +48,7 @@ worker.onmessage = e => {
 	const { id } = e.data; // same id as above
 	const { error } = e.data; // error string if decoder is destroyed or failed
 	const { objId } = e.data; // decoder object id
-	const { canvas } = e.data; // OffscreenCanvas object containing decoded image so far, or null if too few data
+	const { image } = e.data; // ImageData object containing decoded image so far, or null if too few data
 }
 ```
 

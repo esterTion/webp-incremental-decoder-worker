@@ -7,25 +7,26 @@ let objCount = 0;
 
 onmessage = async function (e) {
 	const myModule = await loadTask;
-	const { id, objId, buf, size, isLastChunk } = e.data;
-	const idec = objId ? objPool(objId) : new myModule.WebPIDec(size);
+	const { id, objId, buf, size, deleteObject } = e.data;
+	const idec = objId ? objPool[objId] : new myModule.WebPIDec(size);
 	if (!idec) {
 		postMessage({ id, error: objId ? 'invalid object id' : 'create decoder failed' });
 		return;
 	}
-	const resultObjId = objId ?? objCount++;
-	const image = await idec.append(buf);
-	if (!image) {
-		postMessage({ id, objId: resultObjId, canvas: null });
-		return;
-	}
-	const canvas = new OffscreenCanvas(image.width, image.height);
-	const ctx = canvas.getContext('2d');
-	ctx.putImageData(image, 0, 0);
-	postMessage({ id, objId: resultObjId, canvas }, [canvas]);
-
-	if (isLastChunk) {
+	const resultObjId = objId ?? ++objCount;
+	if (deleteObject) {
 		idec.delete();
 		delete objPool[resultObjId];
+		postMessage({ id, objId: resultObjId });
+		return;
 	}
+	if (!objPool[resultObjId]) {
+		objPool[resultObjId] = idec;
+	}
+	const image = await idec.append(buf);
+	if (!image) {
+		postMessage({ id, objId: resultObjId, image: null });
+		return;
+	}
+	postMessage({ id, objId: resultObjId, image }, [image.data.buffer]);
 }
